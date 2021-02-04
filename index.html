@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MAPPA CM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+
+  <!-- Load Leaflet code library - see updates at http://leafletjs.com/download.html -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+  <!-- Load jQuery and PapaParse to read data from a CSV file -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+<script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
+<!-- location control -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<!-- location control -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+<!-- geocoding plugin -->
+<link rel="stylesheet" href="https://maps.locationiq.com/v2/libs/leaflet-geocoder/1.9.5/leaflet-geocoder-locationiq.min.css">
+<script src="https://maps.locationiq.com/v2/libs/leaflet-geocoder/1.9.5/leaflet-geocoder-locationiq.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-plugins/3.0.2/control/Permalink.js"></script>
+	<!-- marker clustering -->
+	
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" integrity="sha512-RLEjtaFGdC4iQMJDbMzim/dOvAu+8Qp9sw7QE4wIMYcg2goVoivzwgSZq9CsIxp4xKAZPKh5J2f2lOko2Ze6FQ==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" integrity="sha512-BBToHPBStgMiw0lD4AtkRIZmdndhB6aQbXpX7omcrXeG2PauGBl2lzq2xUZTxaLxYz5IDHlmneCZ1IJ+P3kYtQ==" crossorigin="anonymous" />
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster-src.js" integrity="sha512-gu3GZbPnPGREFcXgxeWVbp9Oeq3Tdvskd5PaQ0q//PCDMsa0WSSABIqLDwF5ebaDBfJbcM+lamNEe8ln9dPWwA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js.map"></script>
+  <!-- Position the map with Cascading Style Sheet (CSS) -->
+  <style>
+    body { margin:0; padding:0; }
+    #map { position: absolute; top:0; bottom:0; right:0; left:0; }
+  </style>
+
+</head>
+<body>
+
+  <!-- Insert HTML division tag to layout the map -->
+  <div id="map"></div>
+
+  <!-- Insert Javascript (.js) code to create the map -->
+  <script>
+
+  
+
+// Add layers that we need to the map
+
+	    var osm = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Data © <a href="http://osm.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  });
+	    var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+
+// Initialize the map
+
+var map = L.map('map', {
+        center: [ 42.00,15.00 ], //map loads with this location as center
+        zoom: 8,
+        layers: [osm] // Show 'streets' by default
+});
+// Add the 'layers' control
+L.control.layers({
+        "OSM": osm,
+	"SAT": satellite,
+    }, null, {
+        position: "topright"
+    }).addTo(map);
+
+  // see more basemap options at https://leaflet-extras.github.io/leaflet-providers/preview/
+
+  // Read markers data from data.csv
+  $.get('./data.csv', function(csvString) {
+
+    // Use PapaParse to convert string to array of objects
+    var data = Papa.parse(csvString, {header: true, dynamicTyping: true}).data;
+
+    // For each row in data, create a marker and add it to the map
+    // For each row, columns `Latitude`, `Longitude`, and `Title` are required
+    for (var i in data) {
+      var row = data[i];
+	var frequenze;
+      var iconemarker;
+      switch(row.radio) {
+        case "LTE":
+if( row.earfcn == 6400) { frequenze = "B20"; iconemarker = L.icon({
+    iconUrl: 'b20.png',
+   iconSize: [38, 38],iconAnchor:  [19, 38],popupAnchor:  [0, -34] // point from which the popup should open relative to the iconAnchor
+});
+                 } else if(row.earfcn == 1850)  {frequenze = "B3"; iconemarker = L.icon({
+    iconUrl: 'b3.png',
+   iconSize: [38, 38],iconAnchor:  [19, 38],popupAnchor:  [0, -34] // point from which the popup should open relative to the iconAnchor
+});
+                 } else if(row.earfcn == 501 || row.earfcn == 525 )  { frequenze = "B1"; iconemarker = L.icon({
+    iconUrl: 'b1.png',
+   iconSize: [38, 38],iconAnchor:  [19, 38],popupAnchor:  [0, -34] // point from which the popup should open relative to the iconAnchor
+});
+                 
+                 } else if(row.earfcn == 3025)  { frequenze = "B7"; iconemarker = L.icon({
+    iconUrl: 'b7.png',
+   iconSize: [38, 38],iconAnchor:  [19, 38],popupAnchor:  [0, -34] // point from which the popup should open relative to the iconAnchor
+});
+                 } 
+                 break;
+                 case "UMTS":
+                 iconemarker = L.icon({
+    iconUrl: 'umts.png',
+   iconSize: [38, 38],iconAnchor:  [19, 38],popupAnchor:  [0, -34]
+
+                })
+                break;
+                case "GSM":
+                 iconemarker = L.icon({
+    iconUrl: 'gsm.png',
+   iconSize: [38, 38],iconAnchor:  [19, 38],popupAnchor:  [0, -34]
+
+                })
+                break; }
+                 var eNb =  parseInt(row.cellid/256);
+                 var sec = row.cellid - (enb * 256);
+                 if(row.radio == "LTE") {
+                 
+      var marker = L.marker([row.lat, row.lon], {icon: iconemarker}).bindPopup("<b>LAT:</b> " + row.lat + "<br /><b>LON:</b> " + row.lon + "<br /><b>ENODEB-SEC:</b> " + eNb + ":" + sec + "<br /><b>FREQUENZA:</b> " + frequenze + "<br /><b>E/ARFCN:</b> " + row.earfcn + "<br /><b>LAC:</b> " + row.lac + "<br /><b>CELL ID:</b> " + row.cellid + "<br /><b>RNC:</b> " + row.rnc + "<br /><b>RADIO:</b> " + row.radio + "<br /><b>MCC:</b> " + row.mcc + "<br /><b>MNC:</b> " + row.mnc + "<br /><b>SEGNALE:</b> " + row.signal + "<br /><b>TECNOLOGIA:</b> " + row.tech + "<br /><b>PSC:</b> " + row.psc + "<br />").openPopup();
+      marker.bindTooltip("<span>" + eNb + ":" + sec + "</span>" , {permanent: true, direction: 'bottom'}).openTooltip();
+    } else if( row.radio == "UMTS" || row.radio == "GSM") {
+      var marker = L.marker([row.lat, row.lon], {icon: iconemarker}).bindPopup("<b>LAT:</b> " + row.lat + "<br /><b>LON:</b> " + row.lon + "<br /><b>E/ARFCN:</b> " + row.earfcn + "<br /><b>LAC:</b> " + row.lac + "<br /><b>CELL ID:</b> " + row.cellid + "<br /><b>RNC:</b> " + row.rnc + "<br /><b>RADIO:</b> " + row.radio + "<br /><b>MCC:</b> " + row.mcc + "<br /><b>MNC:</b> " + row.mnc + "<br /><b>SEGNALE:</b> " + row.signal + "<br /><b>TECNOLOGIA:</b> " + row.tech + "<br /><b>PSC:</b> " + row.psc + "<br />").openPopup();
+      marker.bindTooltip("<span>" + row.cellid + "</span>" , {permanent: true, direction: 'bottom'}).openTooltip();
+    }
+
+
+        map.addLayer(marker);  }
+
+  });
+	  //Creazione del pulsante per eliminare il marker di ricerca
+        let btn = document.createElement('button');
+        btn.innerText = 'Delete Marker';
+        btn.onclick =  function() {
+          map.removeLayer(results);
+        }
+ L.control.locate({
+            position: "bottomright"
+        }).addTo(map);
+ //Qui definisco l'icona del marker di ricerca
+	    
+var searchicon = L.icon({
+    iconUrl: 'me.png',
+    
+
+    iconSize:     [38, 38], // size of the icon
+    
+  
+});
+//Qui definisco e setto la ricerca per indirizzo e la localizzazione dell'utente mediante il gps
+var searchControl = new L.esri.Controls.Geosearch().addTo(map);
+
+            var results = new L.LayerGroup().addTo(map);
+
+              searchControl.on('results', function(data){
+                results.clearLayers();
+                for (var i = data.results.length - 1; i >= 0; i--) {
+                  results.addLayer(L.marker(data.results[i].latlng ,  {icon: searchicon}).bindPopup(btn, {
+  maxWidth: 'auto'
+})),map.addLayer(results);
+                }
+              });
+              map.addControl(new L.Control.Permalink({ useLocation: true, text: null }));
+	  
+  </script>
+</body>
+</html>
