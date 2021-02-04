@@ -77,7 +77,7 @@ L.control.layers({
     }).addTo(map);
 
   // see more basemap options at https://leaflet-extras.github.io/leaflet-providers/preview/
-
+var markers = L.markerClusterGroup({disableClusteringAtZoom: 16});
   // Read markers data from data.csv
   $.get('./data.csv', function(csvString) {
 
@@ -137,7 +137,9 @@ if( row.earfcn == 6400) { frequenze = "B20"; iconemarker = L.icon({
     }
 
 
-        map.addLayer(marker);  }
+      markers.addLayer(marker); //Aggiungo il layer della mappa a quello dei cluster
+
+        map.addLayer(markers);  }
 
   });
 	  //Creazione del pulsante per eliminare il marker di ricerca
