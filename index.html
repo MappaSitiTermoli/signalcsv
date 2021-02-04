@@ -126,7 +126,7 @@ if( row.earfcn == 6400) { frequenze = "B20"; iconemarker = L.icon({
                 })
                 break; }
                  var eNb =  parseInt(row.cellid/256);
-                 var sec = row.cellid - (enb * 256);
+                 var sec = row.cellid - (eNb * 256);
                  if(row.radio == "LTE") {
                  
       var marker = L.marker([row.lat, row.lon], {icon: iconemarker}).bindPopup("<b>LAT:</b> " + row.lat + "<br /><b>LON:</b> " + row.lon + "<br /><b>ENODEB-SEC:</b> " + eNb + ":" + sec + "<br /><b>FREQUENZA:</b> " + frequenze + "<br /><b>E/ARFCN:</b> " + row.earfcn + "<br /><b>LAC:</b> " + row.lac + "<br /><b>CELL ID:</b> " + row.cellid + "<br /><b>RNC:</b> " + row.rnc + "<br /><b>RADIO:</b> " + row.radio + "<br /><b>MCC:</b> " + row.mcc + "<br /><b>MNC:</b> " + row.mnc + "<br /><b>SEGNALE:</b> " + row.signal + "<br /><b>TECNOLOGIA:</b> " + row.tech + "<br /><b>PSC:</b> " + row.psc + "<br />").openPopup();
